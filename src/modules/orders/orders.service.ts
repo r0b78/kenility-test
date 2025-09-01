@@ -2,22 +2,18 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OrdersRepository } from './orders.repository';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { ProductsRepository } from '../products/products.repository';
+import { ProductsService } from '../products/products.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private readonly logger: Logger,
     private readonly repo: OrdersRepository,
-    private readonly productsRepo: ProductsRepository,
+    private readonly productsService: ProductsService,
   ) {}
 
   async create(dto: CreateOrderDto) {
-    const products = await this.productsRepo.findByIds(dto.products);
-    if (products.length === 0) {
-      this.logger.warn(`Product with ids ${dto.products} not found`);
-      throw new NotFoundException('Products not found');
-    }
+    const products = await this.productsService.findByIds(dto.products);
     const total = products.reduce((sum, p) => sum + p.price, 0);
     return this.repo.create({
       clientName: dto.clientName,
@@ -32,11 +28,7 @@ export class OrdersService {
     let total = order.total;
     let products = order.products;
     if (dto.products) {
-      const newProducts = await this.productsRepo.findByIds(dto.products);
-      if (newProducts.length === 0) {
-        this.logger.warn(`Product with ids ${dto.products} not found`);
-        throw new NotFoundException('Products not found');
-      }
+      const newProducts = await this.productsService.findByIds(dto.products);
       products = newProducts;
       total = newProducts.reduce((sum, p) => sum + p.price, 0);
     }

@@ -25,4 +25,13 @@ export class ProductsService {
     }
     return product;
   }
+
+  async findByIds(ids: string[]) {
+    const products = await this.repo.findByIds(ids);
+    if (products.length === 0) {
+      this.logger.warn(`Products with ids ${ids} not found`);
+      throw new NotFoundException('Products not found');
+    }
+    return products;
+  }
 }
