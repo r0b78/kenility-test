@@ -2,9 +2,10 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ProductsRepository } from './products.repository';
 import { CreateProductDto } from './dto/create-product.dto';
 import { BucketService } from 'src/shared/bucket/bucket.service';
+import { ProductsPort } from './ports/products.port';
 
 @Injectable()
-export class ProductsService {
+export class ProductsService implements ProductsPort {
   constructor(
     private readonly logger: Logger,
     private readonly bucketService: BucketService,

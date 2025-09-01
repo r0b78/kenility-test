@@ -1,19 +1,20 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, Inject } from '@nestjs/common';
 import { OrdersRepository } from './orders.repository';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { ProductsService } from '../products/products.service';
+import { ProductsPort } from '../products/ports/products.port';
+import { PRODUCTS_PORT } from '../products/products.module';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private readonly logger: Logger,
     private readonly repo: OrdersRepository,
-    private readonly productsService: ProductsService,
+    @Inject(PRODUCTS_PORT) private readonly productsPort: ProductsPort,
   ) {}
 
   async create(dto: CreateOrderDto) {
-    const products = await this.productsService.findByIds(dto.products);
+    const products = await this.productsPort.findByIds(dto.products);
     const total = products.reduce((sum, p) => sum + p.price, 0);
     return this.repo.create({
       clientName: dto.clientName,
@@ -28,7 +29,7 @@ export class OrdersService {
     let total = order.total;
     let products = order.products;
     if (dto.products) {
-      const newProducts = await this.productsService.findByIds(dto.products);
+      const newProducts = await this.productsPort.findByIds(dto.products);
       products = newProducts;
       total = newProducts.reduce((sum, p) => sum + p.price, 0);
     }

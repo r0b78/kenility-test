@@ -2,7 +2,6 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BucketService } from './bucket.service';
 
-@Global()
 @Module({
   imports: [ConfigModule],
   providers: [
