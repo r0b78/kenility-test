@@ -26,6 +26,7 @@ For production environment you want to create a new user attached to the DB that
 ## Quick Start
 
 1. Run: `npm i`
+2. Import the Postman Collection on /docs
 
 ### Running App & DB
 
