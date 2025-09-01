@@ -1,24 +1,19 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OrdersRepository } from './orders.repository';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { v4 as uuid } from 'uuid';
-import { Product } from 'src/shared/mongoose/schemas/product.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { ProductsRepository } from '../products/products.repository';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private readonly logger: Logger,
     private readonly repo: OrdersRepository,
-    @InjectModel(Product.name) private readonly productModel: Model<Product>,
+    private readonly productsRepo: ProductsRepository,
   ) {}
 
   async create(dto: CreateOrderDto) {
-    const products = await this.productModel
-      .find({ _id: { $in: dto.products } })
-      .exec();
+    const products = await this.productsRepo.findByIds(dto.products);
     if (products.length === 0) {
       this.logger.warn(`Product with ids ${dto.products} not found`);
       throw new NotFoundException('Products not found');
@@ -37,9 +32,7 @@ export class OrdersService {
     let total = order.total;
     let products = order.products;
     if (dto.products) {
-      const newProducts = await this.productModel
-        .find({ _id: { $in: dto.products } })
-        .exec();
+      const newProducts = await this.productsRepo.findByIds(dto.products);
       if (newProducts.length === 0) {
         this.logger.warn(`Product with ids ${dto.products} not found`);
         throw new NotFoundException('Products not found');
