@@ -16,7 +16,7 @@
 
 # Notes
 
-For production environment you want to create a new user attached to the DB that will the API use with minimal permissions for security reasons
+For production environment you want to create a new user attached to the DB that will be use by the API with minimal permissions for security reasons
 
 ## Requirements
 
@@ -36,6 +36,6 @@ For production environment you want to create a new user attached to the DB that
 ### Running App Local & DB
 
 1. Copy `.env.local` → `.env`
-2. Run: `docker-compose up -d --build mongo`
-3. Run `npm start:dev`
+2. Run: `docker-compose up -d --build mongo minio`
+3. Run `npm run start:dev`
 4. Open on http://localhost:3000/
