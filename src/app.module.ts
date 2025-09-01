@@ -1,6 +1,7 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
+import { SharedAuthModule } from './shared/auth/shared-auth.module';
 import { ProductsModule } from './modules/products/products.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { MongooseProviderModule } from './shared/mongoose/mongoose.module';
@@ -18,6 +19,7 @@ import { BucketModule } from './shared/bucket/bucket.module';
     BucketModule,
     LoggerModule,
     MongooseProviderModule,
+    SharedAuthModule,
     AuthModule,
     ProductsModule,
     OrdersModule,

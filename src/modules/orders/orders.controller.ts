@@ -14,7 +14,7 @@ import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { GetTotalByDaysDto } from './dto/total-by-days.dto';
-import { JwtAuthGuard } from '../auth/strategy/jwt-auth.guard';
+import { JwtAuthGuard } from '../../shared/auth/strategy/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
 @Controller('orders')

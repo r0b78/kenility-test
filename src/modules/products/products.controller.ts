@@ -15,7 +15,7 @@ import { ProductsService } from './products.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductDto } from './dto/get-product.dto';
-import { JwtAuthGuard } from '../auth/strategy/jwt-auth.guard';
+import { JwtAuthGuard } from '../../shared/auth/strategy/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
 @Controller('products')
