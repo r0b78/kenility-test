@@ -1,0 +1,81 @@
+services:
+  mongo:
+    image: mongo:6.0
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_PORT: ${MONGO_PORT}
+    ports:
+      - "${MONGO_PORT}:${MONGO_PORT}"
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: [
+        "CMD",
+        "mongosh",
+        "--username", "${MONGO_INITDB_ROOT_USERNAME}",
+        "--password", "${MONGO_INITDB_ROOT_PASSWORD}",
+        "--authenticationDatabase", "admin",
+        "--eval", "db.adminCommand('ping')"
+      ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  minio:
+    image: minio/minio
+    container_name: ${MINIO_CONTAINER_NAME:-minio}
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+    ports:
+      - "${MINIO_PORT_API}:${MINIO_PORT_API}"
+      - "${MINIO_PORT_CONSOLE}:${MINIO_PORT_CONSOLE}"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "${MINIO_ENDPOINT}/minio/health/ready"]
+      interval: ${MINIO_HEALTHCHECK_INTERVAL:-10s}
+      timeout: ${MINIO_HEALTHCHECK_TIMEOUT:-5s}
+      retries: ${MINIO_HEALTHCHECK_RETRIES:-5}
+      start_period: ${MINIO_HEALTHCHECK_START_PERIOD:-5s}
+  createbucket:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: [
+      "sh", 
+      "-c", 
+      "sleep 5 && \
+       mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} && \
+       mc mb local/${MINIO_BUCKET} || true && \
+       mc anonymous set download local/${MINIO_BUCKET}"
+    ]
+  api:
+    build: .
+    restart: always
+    environment:
+      MONGO_URI: ${MONGO_URI}
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      MINIO_PORT_API: ${MINIO_PORT_API}
+      MINIO_PORT_CONSOLE : ${MINIO_PORT_CONSOLE}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+volumes:
+  mongodata:
+  minio_data:
